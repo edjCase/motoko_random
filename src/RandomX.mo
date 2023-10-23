@@ -48,7 +48,7 @@ module Module {
         ?Int.abs(randInt);
     };
 
-    public func shuffleArray<T>(random : RandomRangeGenerator, array : [T]) : ?[T] {
+    public func shuffleElements<T>(random : RandomRangeGenerator, array : [T]) : ?[T] {
         let arraySize = array.size();
         if (arraySize == 0) {
             return ?array;
