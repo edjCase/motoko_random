@@ -86,7 +86,7 @@ module Module {
         };
 
         public func shuffleElements<T>(array : [T]) : ?[T] {
-            Module.shuffleArray<T>(random, array);
+            Module.shuffleElements<T>(random, array);
         };
 
         public func randomElement<T>(array : [T]) : ?T {
