@@ -85,7 +85,7 @@ module Module {
             Module.randomNat(random, min, max);
         };
 
-        public func shuffleArray<T>(array : [T]) : ?[T] {
+        public func shuffleElements<T>(array : [T]) : ?[T] {
             Module.shuffleArray<T>(random, array);
         };
 
