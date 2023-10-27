@@ -7,91 +7,76 @@ import Iter "mo:base/Iter";
 import Buffer "mo:base/Buffer";
 
 module Module {
-    public type RandomBinomialGenerator = {
-        binomial : (Nat8) -> ?Nat8;
+    public type RandomGenerator = {
+        nextInt : (min : Int, max : Int) -> ?Int;
+        nextNat : (min : Nat, max : Nat) -> ?Nat;
+        nextCoin : () -> ?Bool;
+        nextRatio : (trueCount : Nat, totalCount : Nat) -> ?Bool;
+        shuffleBuffer : <T>(buffer : Buffer.Buffer<T>) -> ?();
     };
-    public type RandomByteGenerator = {
-        byte : () -> ?Nat8;
+
+    public type Result<T> = {
+        #ok : T;
+        #noEntropy;
     };
-    public type RandomRangeGenerator = {
-        range : (Nat8) -> ?Nat;
-    };
-    public type RandomCoinGenerator = {
-        coin : () -> ?Bool;
-    };
-    public type RandomNumberGenerator = RandomBinomialGenerator and RandomByteGenerator and RandomRangeGenerator and RandomCoinGenerator;
 
     public func fromSeed(seed : Blob) : FiniteX {
         FiniteX(seed);
     };
 
-    public func randomInt(random : RandomRangeGenerator, min : Int, max : Int) : ?Int {
-        if (min > max) {
-            Debug.trap("Min cannot be larger than max");
-        };
-        let range : Nat = Int.abs(max - min) + 1;
+    public class FiniteX(seed : Blob) : RandomGenerator {
+        let random = Random.Finite(seed);
 
-        var bitsNeeded : Nat = 0;
-        var temp : Nat = range;
-        while (temp > 0) {
-            temp := temp / 2;
-            bitsNeeded += 1;
-        };
-
-        let ?randVal = random.range(Nat8.fromNat(bitsNeeded)) else return null;
-        let randInt = min + (randVal % range);
-        ?randInt;
-    };
-
-    public func randomNat(random : RandomRangeGenerator, min : Nat, max : Nat) : ?Nat {
-        let ?randInt = randomInt(random, min, max) else return null;
-        ?Int.abs(randInt);
-    };
-
-    public func shuffleElements<T>(random : RandomRangeGenerator, array : [T]) : ?[T] {
-        let arraySize = array.size();
-        if (arraySize == 0) {
-            return ?array;
-        };
-        let shuffledArray = Buffer.fromArray<T>(array);
-        Buffer.reverse(shuffledArray);
-        var i : Nat = arraySize;
-        for (item in shuffledArray.vals()) {
-            i -= 1;
-            let ?randIdx = randomNat(random, 0, i) else return null;
-            let temp = shuffledArray.get(i);
-            shuffledArray.put(i, shuffledArray.get(randIdx));
-            shuffledArray.put(randIdx, temp);
-        };
-        return ?Buffer.toArray(shuffledArray);
-    };
-
-    public class FiniteX(seed : Blob) {
-        let random : RandomNumberGenerator = Random.Finite(seed);
-
-        public func byte() : ?Nat8 {
-            random.byte();
-        };
-
-        public func bool() : ?Bool {
+        public func nextCoin() : ?Bool {
             random.coin();
         };
 
-        public func int(min : Int, max : Int) : ?Int {
-            Module.randomInt(random, min, max);
+        public func nextRatio(trueCount : Nat, totalCount : Nat) : ?Bool {
+            if (trueCount > totalCount) {
+                Debug.trap("True count cannot be larger than total count");
+            };
+            let ?randValue = nextNat(1, totalCount) else return null;
+            ?(randValue <= trueCount);
         };
 
-        public func nat(min : Nat, max : Nat) : ?Nat {
-            Module.randomNat(random, min, max);
+        public func nextInt(min : Int, max : Int) : ?Int {
+            if (min > max) {
+                Debug.trap("Min cannot be larger than max");
+            };
+            let range : Nat = Int.abs(max - min) + 1;
+
+            var bitsNeeded : Nat = 0;
+            var temp : Nat = range;
+            while (temp > 0) {
+                temp := temp / 2;
+                bitsNeeded += 1;
+            };
+
+            let ?randVal = random.range(Nat8.fromNat(bitsNeeded)) else return null;
+            let randInt = min + (randVal % range);
+            ?randInt;
         };
 
-        public func shuffleElements<T>(array : [T]) : ?[T] {
-            Module.shuffleElements<T>(random, array);
+        public func nextNat(min : Nat, max : Nat) : ?Nat {
+            let ?randInt = nextInt(min, max) else return null;
+            ?Int.abs(randInt);
         };
 
-        public func randomElement<T>(array : [T]) : ?T {
-            let ?i = nat(0, array.size() - 1) else return null;
-            ?array.get(i);
+        public func shuffleBuffer<T>(buffer : Buffer.Buffer<T>) : ?() {
+            let bufferSize = buffer.size();
+            if (bufferSize == 0) {
+                return ?();
+            };
+            Buffer.reverse(buffer);
+            var i : Nat = bufferSize;
+            for (item in buffer.vals()) {
+                i -= 1;
+                let ?randIdx = nextNat(0, i) else return null;
+                let temp = buffer.get(i);
+                buffer.put(i, buffer.get(randIdx));
+                buffer.put(randIdx, temp);
+            };
+            return ?();
         };
     };
 };
