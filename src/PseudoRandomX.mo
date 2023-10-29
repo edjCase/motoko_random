@@ -10,6 +10,7 @@ import Nat32 "mo:base/Nat32";
 module Module {
 
     public type PseudoRandomGenerator = {
+        getCurrentSeed : () -> Nat32;
         nextInt : (min : Int, max : Int) -> Int;
         nextNat : (min : Nat, max : Nat) -> Nat;
         nextCoin : () -> Bool;
@@ -22,15 +23,19 @@ module Module {
     };
 
     public class LinearCongruentialGenerator(seed : Nat32) : PseudoRandomGenerator {
-        var currentValue = seed;
+        var currentSeed = seed;
         let a : Nat32 = 1664525;
         let c : Nat32 = 1013904223;
 
         private func nextSeed() : Nat32 {
-            currentValue := currentValue
+            currentSeed := currentSeed
             |> Nat32.mulWrap(a, _)
             |> Nat32.addWrap(_, c); // Overflow is ok
-            return currentValue;
+            return currentSeed;
+        };
+
+        public func getCurrentSeed() : Nat32 {
+            currentSeed;
         };
 
         public func nextInt(min : Int, max : Int) : Int {
