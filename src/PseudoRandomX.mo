@@ -66,6 +66,24 @@ module Module {
             return randomValue <= trueCount;
         };
 
+        public func nextBufferElement<T>(buffer : Buffer.Buffer<T>) : T {
+            let bufferSize = buffer.size();
+            if (bufferSize == 0) {
+                Debug.trap("Cannot get random element from empty buffer");
+            };
+            let randomIndex = nextNat(0, bufferSize - 1);
+            buffer.get(randomIndex);
+        };
+
+        public func nextArrayElement<T>(array : [T]) : T {
+            let arraySize = array.size();
+            if (arraySize == 0) {
+                Debug.trap("Cannot get random element from empty buffer");
+            };
+            let randomIndex = nextNat(0, arraySize - 1);
+            array[randomIndex];
+        };
+
         public func shuffleBuffer<T>(buffer : Buffer.Buffer<T>) {
             let bufferSize = buffer.size();
             if (bufferSize == 0) {
@@ -75,10 +93,10 @@ module Module {
             var i : Nat = bufferSize;
             for (item in buffer.vals()) {
                 i -= 1;
-                let randIdx = nextNat(0, i);
+                let randomIndex = nextNat(0, i);
                 let temp = buffer.get(i);
-                buffer.put(i, buffer.get(randIdx));
-                buffer.put(randIdx, temp);
+                buffer.put(i, buffer.get(randomIndex));
+                buffer.put(randomIndex, temp);
             };
         };
     };
