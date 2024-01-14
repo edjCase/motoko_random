@@ -15,6 +15,8 @@ module Module {
         nextNat : (min : Nat, max : Nat) -> Nat;
         nextCoin : () -> Bool;
         nextRatio : (trueCount : Nat, totalCount : Nat) -> Bool;
+        nextBufferElement : <T>(buffer : Buffer.Buffer<T>) -> T;
+        nextArrayElement : <T>(array : [T]) -> T;
         shuffleBuffer : <T>(buffer : Buffer.Buffer<T>) -> ();
     };
 
@@ -69,7 +71,7 @@ module Module {
         public func nextBufferElement<T>(buffer : Buffer.Buffer<T>) : T {
             let bufferSize = buffer.size();
             if (bufferSize == 0) {
-                Debug.trap("Cannot get random element from empty buffer");
+                Debug.trap("Cannot get random element from an empty buffer");
             };
             let randomIndex = nextNat(0, bufferSize - 1);
             buffer.get(randomIndex);
@@ -78,7 +80,7 @@ module Module {
         public func nextArrayElement<T>(array : [T]) : T {
             let arraySize = array.size();
             if (arraySize == 0) {
-                Debug.trap("Cannot get random element from empty buffer");
+                Debug.trap("Cannot get random element from an empty array");
             };
             let randomIndex = nextNat(0, arraySize - 1);
             array[randomIndex];
