@@ -6,6 +6,9 @@ import Array "mo:base/Array";
 import Iter "mo:base/Iter";
 import Buffer "mo:base/Buffer";
 import Nat32 "mo:base/Nat32";
+import Float "mo:base/Float";
+import Prelude "mo:base/Prelude";
+import Blob "mo:base/Blob";
 
 module Module {
 
@@ -13,11 +16,41 @@ module Module {
         getCurrentSeed : () -> Nat32;
         nextInt : (min : Int, max : Int) -> Int;
         nextNat : (min : Nat, max : Nat) -> Nat;
+        nextFloat : (min : Float, max : Float) -> Float;
         nextCoin : () -> Bool;
         nextRatio : (trueCount : Nat, totalCount : Nat) -> Bool;
         nextBufferElement : <T>(buffer : Buffer.Buffer<T>) -> T;
         nextArrayElement : <T>(array : [T]) -> T;
+        nextArrayElementWeighted : <T>(array : [(T, Float)]) -> T;
         shuffleBuffer : <T>(buffer : Buffer.Buffer<T>) -> ();
+    };
+
+    public func fromBlob(blob : Blob) : PseudoRandomGenerator {
+        let seed = convertBlobToSeed(blob);
+        LinearCongruentialGenerator(seed);
+    };
+
+    private func convertBlobToSeed(blob : Blob) : Nat32 {
+        var seed : Nat32 = 0;
+
+        Iter.iterate(
+            blob.vals(),
+            func(byte : Nat8, i : Nat) {
+                // Determine the position of the byte within its 4-byte chunk
+                let bytePosition : Nat32 = Nat32.fromNat(i) % 4;
+                let nat32Byte = Nat32.fromNat(Nat8.toNat(byte));
+                // Shift the byte to its correct position and combine it with the current seed using XOR
+                let shiftedByte = Nat32.bitshiftLeft(nat32Byte, (3 - bytePosition) * 8);
+                seed := Nat32.bitxor(seed, shiftedByte);
+
+                // Every 4 bytes, optionally mix the seed to ensure even distribution of entropy
+                if ((i + 1) % 4 == 0) {
+                    seed := Nat32.bitxor(Nat32.mul(seed, 2654435761), Nat32.bitrotLeft(seed, 13));
+                };
+            },
+        );
+
+        return seed;
     };
 
     public func fromSeed(seed : Nat32) : PseudoRandomGenerator {
@@ -60,6 +93,17 @@ module Module {
             nextRatio(1, 2);
         };
 
+        public func nextFloat(min : Float, max : Float) : Float {
+            if (min > max) {
+                Debug.trap("Min cannot be larger than max");
+            };
+            let randNat32 = nextSeed();
+            let randIntValue = Nat32.toNat(randNat32);
+            let nat32Max : Float = 4_294_967_295;
+            let randFloat = Float.fromInt(randIntValue) / nat32Max;
+            min + (max - min) * randFloat;
+        };
+
         public func nextRatio(trueCount : Nat, totalCount : Nat) : Bool {
             if (trueCount > totalCount) {
                 Debug.trap("True count cannot be larger than total count");
@@ -84,6 +128,29 @@ module Module {
             };
             let randomIndex = nextNat(0, arraySize - 1);
             array[randomIndex];
+        };
+
+        public func nextArrayElementWeighted<T>(array : [(T, Float)]) : T {
+            let arraySize = array.size();
+            if (arraySize == 0) {
+                Debug.trap("Cannot get random element from an empty array");
+            };
+            let totalWeight = Array.foldLeft<(T, Float), Float>(
+                array,
+                0.0,
+                func(acc : Float, (item, weight) : (T, Float)) : Float {
+                    acc + weight;
+                },
+            );
+            let randomThreshold = nextFloat(0.0, totalWeight);
+            var sum : Float = 0.0;
+            for ((element, weight) in Iter.fromArray(array)) {
+                sum += weight;
+                if (sum > randomThreshold) {
+                    return element;
+                };
+            };
+            Prelude.unreachable();
         };
 
         public func shuffleBuffer<T>(buffer : Buffer.Buffer<T>) {
