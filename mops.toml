@@ -1,5 +1,5 @@
 [dependencies]
-base = "0.9.6"
+base = "0.10.4"
 
 [package]
 name = "random"
