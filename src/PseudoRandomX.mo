@@ -22,6 +22,7 @@ module Module {
         nextBufferElement : <T>(buffer : Buffer.Buffer<T>) -> T;
         nextArrayElement : <T>(array : [T]) -> T;
         nextArrayElementWeighted : <T>(array : [(T, Float)]) -> T;
+        nextArrayElementWeightedFunc : <T>(array : [T], weightFunc : (T) -> Float) -> T;
         shuffleBuffer : <T>(buffer : Buffer.Buffer<T>) -> ();
     };
 
@@ -151,6 +152,14 @@ module Module {
                 };
             };
             Prelude.unreachable();
+        };
+
+        public func nextArrayElementWeightedFunc<T>(array : [T], weightFunc : (T) -> Float) : T {
+            let weightedArray = Array.map<T, (T, Float)>(
+                array,
+                func(item : T) : (T, Float) = (item, weightFunc(item)),
+            );
+            nextArrayElementWeighted(weightedArray);
         };
 
         public func shuffleBuffer<T>(buffer : Buffer.Buffer<T>) {
