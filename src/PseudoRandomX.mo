@@ -38,7 +38,7 @@ module Module {
             blob.vals(),
             func(byte : Nat8, i : Nat) {
                 // Determine the position of the byte within its 4-byte chunk
-                let bytePosition : Nat32 = Nat32.fromNat(i) % 4;
+                let bytePosition : Nat32 = Nat32.fromNat(i % 4);
                 let nat32Byte = Nat32.fromNat(Nat8.toNat(byte));
                 // Shift the byte to its correct position and combine it with the current seed using XOR
                 let shiftedByte = Nat32.bitshiftLeft(nat32Byte, (3 - bytePosition) * 8);
@@ -46,7 +46,7 @@ module Module {
 
                 // Every 4 bytes, optionally mix the seed to ensure even distribution of entropy
                 if ((i + 1) % 4 == 0) {
-                    seed := Nat32.bitxor(Nat32.mul(seed, 2654435761), Nat32.bitrotLeft(seed, 13));
+                    seed := Nat32.bitxor(Nat32.mulWrap(seed, 2654435761), Nat32.bitrotLeft(seed, 13));
                 };
             },
         );
