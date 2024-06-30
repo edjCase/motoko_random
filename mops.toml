@@ -6,6 +6,8 @@ name = "xtended-random"
 version = "0.1.0"
 description = "A library for random helper funtions"
 repository = "https://github.com/edjcase/motoko_random"
+keywords = [ "random", "pseudo" ]
+license = "MIT"
 
 [dev-dependencies]
-test = "1.0.1"
+test = "2.0.0"
