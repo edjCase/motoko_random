@@ -50,7 +50,7 @@ getCurrentSeed : () -> Nat32
 
 #### nextInt
 
-Generates a random integer within the specified range (inclusive).
+Generates a random integer within the specified range (exclusive).
 
 ```motoko
 nextInt : (min : Int, max : Int) -> Int
@@ -58,7 +58,7 @@ nextInt : (min : Int, max : Int) -> Int
 
 #### nextNat
 
-Generates a random natural number within the specified range (inclusive).
+Generates a random natural number within the specified range (exclusive).
 
 ```motoko
 nextNat : (min : Nat, max : Nat) -> Nat
@@ -137,14 +137,14 @@ Here are some examples of how to use the Pseudo Random Number Generator:
 let prng = PseudoRandomX.fromSeed(0);
 
 let randomInt = prng.nextInt(1, 10);
-Debug.print("Random integer between 1 and 10 (inclusive): " # Int.toText(randomInt));
+Debug.print("Random integer between 1 and 10 (exclusive): " # Int.toText(randomInt));
 
 let randomCoin = prng.nextCoin();
 Debug.print("Random coin flip: " # Bool.toText(randomCoin));
 
 
 let randomFloat = prng.nextFloat(0.0, 1.0);
-Debug.print("Random float between 0.0 and 1.0 (inclusive): " # Float.toText(randomFloat));
+Debug.print("Random float between 0.0 and 1.0 (exclusive): " # Float.toText(randomFloat));
 
 let buffer = Buffer.fromArray<Nat>([1, 2, 3, 4, 5]);
 prng.shuffleBuffer(buffer);
@@ -205,7 +205,7 @@ nextRatio : (trueCount : Nat, totalCount : Nat) -> ?Bool
 
 #### nextInt
 
-Generates a random integer within the specified range (inclusive).
+Generates a random integer within the specified range (exclusive).
 
 ```motoko
 nextInt : (min : Int, max : Int) -> ?Int
@@ -213,7 +213,7 @@ nextInt : (min : Int, max : Int) -> ?Int
 
 #### nextNat
 
-Generates a random natural number within the specified range (inclusive).
+Generates a random natural number within the specified range (exclusive).
 
 ```motoko
 nextNat : (min : Nat, max : Nat) -> ?Nat
@@ -235,7 +235,7 @@ Here are some examples of how to use the Finite Random Number Generator:
 let entropy : Blob = ...; // Initialize with a proper seed
 let randomGen = RandomX.fromEntropy(seed);
 let ?randomInt = randomGen.nextInt(1, 10) else return #err("Not enough entropy");
-Debug.print("Random integer between 1 and 10 (inclusive): " # Int.toText(randomInt));
+Debug.print("Random integer between 1 and 10 (exclusive): " # Int.toText(randomInt));
 
 let ?randomCoin = randomGen.nextCoin() else return #err("Not enough entropy");
 Debug.print("Random coin flip: " # Bool.toText(randomCoin));

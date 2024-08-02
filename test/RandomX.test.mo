@@ -2,30 +2,11 @@ import Iter "mo:base/Iter";
 import { test } "mo:test";
 import Debug "mo:base/Debug";
 import Int "mo:base/Int";
-import Float "mo:base/Float";
 import Buffer "mo:base/Buffer";
 import Blob "mo:base/Blob";
 import Nat8 "mo:base/Nat8";
 import Nat32 "mo:base/Nat32";
 import RandomX "../src/RandomX";
-
-let assertEqualInt = func(expected : Int, actual : Int) : () {
-  if (actual != expected) {
-    Debug.trap("Expected " # Int.toText(expected) # ", got " # Int.toText(actual));
-  };
-};
-
-let assertEqualNat = func(expected : Nat, actual : Nat) : () {
-  if (actual != expected) {
-    Debug.trap("Expected " # Int.toText(expected) # ", got " # Int.toText(actual));
-  };
-};
-
-let assertEqualBool = func(expected : Bool, actual : Bool) : () {
-  if (actual != expected) {
-    Debug.trap("Expected " # debug_show (expected) # ", got " # debug_show (actual));
-  };
-};
 
 let assertNotNull = func<T>(value : ?T) : () {
   switch (value) {

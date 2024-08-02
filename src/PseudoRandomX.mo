@@ -35,15 +35,25 @@ module {
         shuffleBuffer : <T>(buffer : Buffer.Buffer<T>) -> ();
     };
 
+    /// The kinds of pseudo-random number generation algorithms available.
+    /// - `#linearCongruential`: A simple and fast generator. Good for basic uses where speed is
+    ///   prioritized over randomness quality
+    /// - `#xorshift32`: Offers a good balance of speed and randomness quality. Better statistical
+    ///   properties than linear congruential
+    public type PseudoRandomKind = {
+        #linearCongruential;
+        #xorshift32;
+    };
+
     /// Creates a new PseudoRandomGenerator from a Blob.
     ///
     /// ```motoko include=import
     /// let blob : Blob = ...;
     /// let prng = PseudoRandom.fromBlob(blob);
     /// ```
-    public func fromBlob(blob : Blob) : PseudoRandomGenerator {
+    public func fromBlob(blob : Blob, kind : PseudoRandomKind) : PseudoRandomGenerator {
         let seed = convertBlobToSeed(blob);
-        LinearCongruentialGenerator(seed);
+        DefaultPseudoRandomGenerator(seed, kind);
     };
 
     /// Converts a Blob to a 32-bit seed for the random number generator.
@@ -76,22 +86,36 @@ module {
     /// let seed : Nat32 = 12345;
     /// let prng = PseudoRandom.fromSeed(seed);
     /// ```
-    public func fromSeed(seed : Nat32) : PseudoRandomGenerator {
-        LinearCongruentialGenerator(seed);
+    public func fromSeed(seed : Nat32, kind : PseudoRandomKind) : PseudoRandomGenerator {
+        DefaultPseudoRandomGenerator(seed, kind);
     };
 
-    /// Implements a Linear Congruential Generator for pseudo-random number generation.
-    public class LinearCongruentialGenerator(seed : Nat32) : PseudoRandomGenerator {
+    /// Implements the specified algorithm kinds for pseudo-random number generation.
+    public class DefaultPseudoRandomGenerator(seed : Nat32, kind : PseudoRandomKind) : PseudoRandomGenerator {
         var currentSeed = seed;
-        let a : Nat32 = 1664525;
-        let c : Nat32 = 1013904223;
+
+        let nextSeedInternal = switch (kind) {
+            case (#linearCongruential) func() : Nat32 {
+                let a : Nat32 = 1664525;
+                let c : Nat32 = 1013904223;
+                currentSeed
+                |> Nat32.mulWrap(a, _)
+                |> Nat32.addWrap(_, c); // Overflow is ok
+            };
+            case (#xorshift32) func() : Nat32 {
+                var seed = currentSeed;
+                seed := seed ^ (seed << 13);
+                seed := seed ^ (seed >> 17);
+                seed := seed ^ (seed << 5);
+                seed;
+            };
+        };
 
         /// Generates the next seed in the sequence.
-        private func nextSeed() : Nat32 {
-            currentSeed := currentSeed
-            |> Nat32.mulWrap(a, _)
-            |> Nat32.addWrap(_, c); // Overflow is ok
-            return currentSeed;
+        let nextSeed = func() : Nat32 {
+            let newSeed = nextSeedInternal();
+            currentSeed := newSeed;
+            newSeed;
         };
 
         /// Returns the current seed of the generator.
@@ -99,18 +123,18 @@ module {
             currentSeed;
         };
 
-        /// Generates a random integer within the specified range (inclusive).
+        /// Generates a random integer within the specified range (exclusive).
         ///
         /// ```motoko include=import
         /// let prng : PseudoRandomGenerator = ...;
-        /// let randomInt = prng.nextInt(1, 10);
+        /// let randomInt = prng.nextInt(0, 10); // [0, 10)
         /// ```
         public func nextInt(min : Int, max : Int) : Int {
-            if (min > max) {
-                Debug.trap("Min cannot be larger than max");
+            if (min >= max) {
+                Debug.trap("Max must be larger than min");
             };
             let randNat32 = nextSeed();
-            let rangeSize = max - min + 1;
+            let rangeSize = max - min;
             min + (Nat32.toNat(randNat32) % rangeSize);
         };
 
@@ -118,7 +142,7 @@ module {
         ///
         /// ```motoko include=import
         /// let prng : PseudoRandomGenerator = ...;
-        /// let randomNat = prng.nextNat(1, 10);
+        /// let randomNat = prng.nextNat(0, 10); // [0, 10)
         /// ```
         public func nextNat(min : Nat, max : Nat) : Nat {
             let randInt = nextInt(min, max);
@@ -139,7 +163,7 @@ module {
         ///
         /// ```motoko include=import
         /// let prng : PseudoRandomGenerator = ...;
-        /// let randomFloat = prng.nextFloat(0.0, 1.0);
+        /// let randomFloat = prng.nextFloat(0.0, 1.0); // [0.0, 1.0)
         /// ```
         public func nextFloat(min : Float, max : Float) : Float {
             if (min > max) {
@@ -165,7 +189,7 @@ module {
             if (trueCount > totalCount) {
                 Debug.trap("True count cannot be larger than total count");
             };
-            let randomValue = nextNat(1, totalCount);
+            let randomValue = nextNat(1, totalCount + 1);
             return randomValue <= trueCount;
         };
 
@@ -181,7 +205,7 @@ module {
             if (bufferSize == 0) {
                 Debug.trap("Cannot get random element from an empty buffer");
             };
-            let randomIndex = nextNat(0, bufferSize - 1);
+            let randomIndex = nextNat(0, bufferSize);
             buffer.get(randomIndex);
         };
 
@@ -197,7 +221,7 @@ module {
             if (arraySize == 0) {
                 Debug.trap("Cannot get random element from an empty array");
             };
-            let randomIndex = nextNat(0, arraySize - 1);
+            let randomIndex = nextNat(0, arraySize);
             array[randomIndex];
         };
 
@@ -263,7 +287,7 @@ module {
             var i : Nat = bufferSize;
             for (item in buffer.vals()) {
                 i -= 1;
-                let randomIndex = nextNat(0, i);
+                let randomIndex = nextNat(0, i + 1);
                 let temp = buffer.get(i);
                 buffer.put(i, buffer.get(randomIndex));
                 buffer.put(randomIndex, temp);
