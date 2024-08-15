@@ -33,6 +33,13 @@ module {
         nextArrayElementWeighted : <T>(array : [(T, Float)]) -> T;
         nextArrayElementWeightedFunc : <T>(array : [T], weightFunc : (T) -> Float) -> T;
         shuffleBuffer : <T>(buffer : Buffer.Buffer<T>) -> ();
+        optionBuilder : <T>() -> PseudoRandomOptionBuilder<T>;
+    };
+
+    public type PseudoRandomOptionBuilder<T> = {
+        withValue : (value : T, weight : Float) -> PseudoRandomOptionBuilder<T>;
+        withFunc : (f : () -> T, weight : Float) -> PseudoRandomOptionBuilder<T>;
+        next : () -> T;
     };
 
     /// The kinds of pseudo-random number generation algorithms available.
@@ -91,7 +98,7 @@ module {
     };
 
     /// Implements the specified algorithm kinds for pseudo-random number generation.
-    public class DefaultPseudoRandomGenerator(seed : Nat32, kind : PseudoRandomKind) : PseudoRandomGenerator {
+    public class DefaultPseudoRandomGenerator(seed : Nat32, kind : PseudoRandomKind) : PseudoRandomGenerator = this {
         var currentSeed = seed;
 
         let nextSeedInternal = switch (kind) {
@@ -293,5 +300,29 @@ module {
                 buffer.put(randomIndex, temp);
             };
         };
+
+        public func optionBuilder<T>() : PseudoRandomOptionBuilder<T> {
+            DefaultPseudoRandomOptionBuilder<T>(this);
+        };
+    };
+
+    public class DefaultPseudoRandomOptionBuilder<T>(prng : PseudoRandomGenerator) : PseudoRandomOptionBuilder<T> = this {
+        var values : [(() -> T, Float)] = [];
+
+        public func withValue(value : T, weight : Float) : PseudoRandomOptionBuilder<T> {
+            values := Array.append(values, [(func() : T = value, weight)]);
+            this;
+        };
+
+        public func withFunc(f : () -> T, weight : Float) : PseudoRandomOptionBuilder<T> {
+            values := Array.append(values, [(f, weight)]);
+            this;
+        };
+
+        public func next() : T {
+            let func_ = prng.nextArrayElementWeighted(values);
+            func_();
+        };
+
     };
 };
