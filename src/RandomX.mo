@@ -63,7 +63,7 @@ module {
             ?(randValue <= trueCount);
         };
 
-        /// Generates a random integer within the specified range (inclusive).
+        /// Generates a random integer within the specified range (inclusive min, exclusive max).
         /// Returns null if there's not enough entropy.
         ///
         /// ```motoko include=import
@@ -89,7 +89,7 @@ module {
             ?randInt;
         };
 
-        /// Generates a random natural number within the specified range (inclusive).
+        /// Generates a random natural number within the specified range (inclusive min, exclusive max).
         /// Returns null if there's not enough entropy.
         ///
         /// ```motoko include=import

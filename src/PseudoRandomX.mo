@@ -130,7 +130,7 @@ module {
             currentSeed;
         };
 
-        /// Generates a random integer within the specified range (exclusive).
+        /// Generates a random integer within the specified range (inclusive min, exclusive max).
         ///
         /// ```motoko include=import
         /// let prng : PseudoRandomGenerator = ...;
@@ -145,7 +145,7 @@ module {
             min + (Nat32.toNat(randNat32) % rangeSize);
         };
 
-        /// Generates a random natural number within the specified range (inclusive).
+        /// Generates a random natural number within the specified range (inclusive min, exclusive max).
         ///
         /// ```motoko include=import
         /// let prng : PseudoRandomGenerator = ...;

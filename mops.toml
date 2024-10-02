@@ -3,10 +3,10 @@ base = "0.12.0"
 
 [package]
 name = "xtended-random"
-version = "1.0.0"
+version = "1.0.1"
 description = "A library for random helper funtions"
 repository = "https://github.com/edjcase/motoko_random"
-keywords = [ "random", "pseudo" ]
+keywords = [ "random", "pseudo", "rng" ]
 license = "MIT"
 
 [dev-dependencies]
