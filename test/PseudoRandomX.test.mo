@@ -1,11 +1,11 @@
-import Iter "mo:core/Iter";
+import Iter "mo:core@1/Iter";
 import { test } "mo:test";
-import Int "mo:core/Int";
-import Float "mo:core/Float";
-import List "mo:core/List";
-import Nat "mo:core/Nat";
+import Int "mo:core@1/Int";
+import Float "mo:core@1/Float";
+import List "mo:core@1/List";
+import Nat "mo:core@1/Nat";
 import PseudoRandomX "../src/PseudoRandomX";
-import Runtime "mo:core/Runtime";
+import Runtime "mo:core@1/Runtime";
 
 let assertEqualInt = func(expected : Int, actual : Int) : () {
   if (actual != expected) {
@@ -275,7 +275,7 @@ test(
       let list = List.fromArray<Int>(testCase.input);
       rand.shuffleList(list);
       for (i in Nat.range(0, List.size(list))) {
-        assertEqualInt(testCase.expected[i], List.get(list, i));
+        assertEqualInt(testCase.expected[i], List.at(list, i));
       };
     };
   },

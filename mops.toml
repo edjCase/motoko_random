@@ -1,13 +1,13 @@
 [package]
 name = "xtended-random"
-version = "2.0.0"
+version = "2.1.0"
 description = "A library for random helper funtions"
 repository = "https://github.com/edjcase/motoko_random"
 keywords = ["random", "pseudo", "rng"]
 license = "MIT"
 
 [dependencies]
-core = "0.6.0"
+"core@1" = "1.0.0"
 
 [dev-dependencies]
 test = "2.1.1"

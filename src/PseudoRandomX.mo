@@ -5,16 +5,16 @@
 /// import PseudoRandomX "mo:xtended-random/PseudoRandomX";
 /// ```
 
-import Int "mo:core/Int";
-import Nat8 "mo:core/Nat8";
-import Array "mo:core/Array";
-import Iter "mo:core/Iter";
-import List "mo:core/List";
-import Nat32 "mo:core/Nat32";
-import Float "mo:core/Float";
-import Blob "mo:core/Blob";
-import Bool "mo:core/Bool";
-import Runtime "mo:core/Runtime";
+import Int "mo:core@1/Int";
+import Nat8 "mo:core@1/Nat8";
+import Array "mo:core@1/Array";
+import Iter "mo:core@1/Iter";
+import List "mo:core@1/List";
+import Nat32 "mo:core@1/Nat32";
+import Float "mo:core@1/Float";
+import Blob "mo:core@1/Blob";
+import Bool "mo:core@1/Bool";
+import Runtime "mo:core@1/Runtime";
 import Common "./Common";
 
 module {

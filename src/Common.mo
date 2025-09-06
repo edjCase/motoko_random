@@ -7,12 +7,12 @@
 /// import Common "mo:xtended-random/Common";
 /// ```
 
-import Array "mo:core/Array";
-import Iter "mo:core/Iter";
-import List "mo:core/List";
-import Float "mo:core/Float";
-import Runtime "mo:core/Runtime";
-import Nat8 "mo:core/Nat8";
+import Array "mo:core@1/Array";
+import Iter "mo:core@1/Iter";
+import List "mo:core@1/List";
+import Float "mo:core@1/Float";
+import Runtime "mo:core@1/Runtime";
+import Nat8 "mo:core@1/Nat8";
 
 module {
 
@@ -67,7 +67,7 @@ module {
       Runtime.trap("Cannot get random element from an empty list");
     };
     let randomIndex = randNat(0, listSize);
-    List.get(list, randomIndex);
+    List.at(list, randomIndex);
   };
 
   /// Selects a random element from the given array using the provided random generator.
@@ -152,8 +152,8 @@ module {
     var i : Nat = listSize - 1;
     while (i > 0) {
       let randIdx = randNat(0, i + 1);
-      let temp = List.get(list, i);
-      List.put(list, i, List.get(list, randIdx));
+      let temp = List.at(list, i);
+      List.put(list, i, List.at(list, randIdx));
       List.put(list, randIdx, temp);
       i -= 1;
     };

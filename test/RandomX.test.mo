@@ -1,12 +1,12 @@
-import Iter "mo:core/Iter";
+import Iter "mo:core@1/Iter";
 import { test } "mo:test";
-import Int "mo:core/Int";
-import List "mo:core/List";
+import Int "mo:core@1/Int";
+import List "mo:core@1/List";
 import RandomX "../src/RandomX";
-import Runtime "mo:core/Runtime";
-import Random "mo:core/Random";
-import Float "mo:core/Float";
-import Array "mo:core/Array";
+import Runtime "mo:core@1/Runtime";
+import Random "mo:core@1/Random";
+import Float "mo:core@1/Float";
+import Array "mo:core@1/Array";
 
 let assertNotNull = func<T>(value : ?T) : () {
   switch (value) {

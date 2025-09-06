@@ -5,13 +5,13 @@
 /// import RandomX "mo:xtended-random/RandomX";
 /// ```
 
-import Random "mo:core/Random";
-import List "mo:core/List";
-import Bool "mo:core/Bool";
-import Float "mo:core/Float";
-import Nat8 "mo:core/Nat8";
+import Random "mo:core@1/Random";
+import List "mo:core@1/List";
+import Bool "mo:core@1/Bool";
+import Float "mo:core@1/Float";
+import Nat8 "mo:core@1/Nat8";
 import Common "./Common";
-import Runtime "mo:core/Runtime";
+import Runtime "mo:core@1/Runtime";
 
 module {
 
